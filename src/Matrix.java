@@ -41,7 +41,7 @@ public class Matrix {
         return this.data[rindex][cindex];
     }
 
-    Matrix Add(Matrix M) {
+    Matrix add(Matrix M) {
         if (this.row != M.row || this.col != M.col) {
             try {
                 throw new Exception("相加的矩阵维数不匹配！");
@@ -59,7 +59,7 @@ public class Matrix {
     }
 
 
-    public static Matrix Add(Matrix M1, Matrix M2) {
+    public static Matrix add(Matrix M1, Matrix M2) {
         if (M1.row != M2.row || M1.col != M2.col) {
             try {
                 throw new Exception("相加的矩阵维数不匹配！");
@@ -76,7 +76,7 @@ public class Matrix {
         return res;
     }
 
-    public Matrix Sub(Matrix M) {
+    public Matrix sub(Matrix M) {
         if (this.row != M.row || this.col != M.col) {
             try {
                 throw new Exception("相减的矩阵维数不匹配！");
@@ -93,7 +93,7 @@ public class Matrix {
         return res;
     }
 
-    public static Matrix Sub(Matrix M1, Matrix M2) {
+    public static Matrix sub(Matrix M1, Matrix M2) {
         if (M1.row != M2.row || M1.col != M2.col) {
             try {
                 throw new Exception("相减的矩阵维数不匹配！");
@@ -110,7 +110,7 @@ public class Matrix {
         return res;
     }
 
-    public Matrix Multiply(Matrix M) {
+    public Matrix multiply(Matrix M) {
         if (this.col != M.row) {
             try {
                 throw new Exception("相乘的矩阵维度不匹配！");
@@ -128,7 +128,7 @@ public class Matrix {
         return res;
     }
 
-    public Matrix Multiply(double n) {
+    public Matrix multiply(double n) {
         Matrix res = new Matrix(this);
         for (int i = 0; i < this.row; i++) {
             for (int j = 0; j < this.col; j++) {
@@ -138,7 +138,7 @@ public class Matrix {
         return res;
     }
 
-    public static Matrix Multiply(Matrix M1, Matrix M2) {
+    public static Matrix multiply(Matrix M1, Matrix M2) {
         if (M1.col != M2.row) {
             try {
                 throw new Exception("相乘的矩阵维数不匹配！");
@@ -156,7 +156,7 @@ public class Matrix {
         return res;
     }
 
-    public static Matrix Multiply(Matrix M1, int n) {
+    public static Matrix multiply(Matrix M1, int n) {
         Matrix res = new Matrix(M1.row, M1.col);
         for (int i = 0; i < M1.row; i++) {
             for (int j = 0; j < M1.col; j++) {
@@ -166,23 +166,23 @@ public class Matrix {
         return res;
     }
 
-    public Matrix Pow(int n) {
+    public Matrix pow(int n) {
         Matrix res = new Matrix(this);
         for (int i = 0; i < n; i++) {
-            res = Matrix.Multiply(res, this);
+            res = Matrix.multiply(res, this);
         }
         return res;
     }
 
-    public static Matrix Pow(Matrix M, int n) {
+    public static Matrix pow(Matrix M, int n) {
         Matrix res = new Matrix(M);
         for (int i = 0; i < n; i++) {
-            res = Matrix.Multiply(res, M);
+            res = Matrix.multiply(res, M);
         }
         return res;
     }
 
-    public Matrix Divide(double n) {
+    public Matrix divide(double n) {
         if (n == 0) {
             try {
                 throw new Exception("除数为0!");
@@ -200,7 +200,7 @@ public class Matrix {
     }
 
 
-    public Matrix Transfer() {
+    public Matrix transfer() {
         Matrix res = new Matrix(this.col, this.row);
         for (int i = 0; i < this.col; i++) {
             for (int j = 0; j < this.row; j++) {
@@ -248,7 +248,7 @@ public class Matrix {
         return res;
     }
 
-    public Matrix Inverse() {
+    public Matrix inverse() {
         if (this.col != this.row) {
             try {
                 throw new Exception("只有方阵才可求逆");
@@ -272,7 +272,7 @@ public class Matrix {
                 e.printStackTrace();
             }
         }
-        Matrix res = WithMatrix.Divide(DetValue);
+        Matrix res = WithMatrix.divide(DetValue);
         return res;
     }
 
@@ -287,7 +287,7 @@ public class Matrix {
         return res;
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         double[][] s1 = {{1, 2, 3}, {1, 3, 4}, {2, 4, 5}};
         double[][] s2 = {{1, 2}, {3, 4}, {5, 6}};
 
@@ -297,5 +297,5 @@ public class Matrix {
         System.out.println(S2.Transfer());
         System.out.println();
         System.out.println(S1.Inverse());
-    }
+    }*/
 }
