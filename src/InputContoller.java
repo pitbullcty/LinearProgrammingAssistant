@@ -14,6 +14,8 @@ public class InputContoller {
         return variates[index];
     }
 
-
+    public int getNum() {
+        return num;
+    }
 
 }
