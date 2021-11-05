@@ -119,8 +119,8 @@
           <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
         <properties>
-          <columns value="50"/>
-          <text value=""/>
+          <columns value="0"/>
+          <text value="                        "/>
         </properties>
       </component>
     </children>

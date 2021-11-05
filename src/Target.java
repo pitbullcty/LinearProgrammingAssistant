@@ -5,7 +5,7 @@ public class Target{
         target_data = data.clone();
     }
 
-    public double[] getResult_data() {
+    public double[] getTarget_data() {
         return target_data;
     }
 }
