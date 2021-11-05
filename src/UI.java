@@ -2,9 +2,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 
-public class UI{
+public class UI {
 
     private static JFrame frame;
     private JPanel panel1;
@@ -15,97 +18,140 @@ public class UI{
     private JButton addConstraint;
     private JScrollPane scrollpane;
     private JPanel constraint;
+    private JTextField target;
+    private HashMap<String, Component> constraintHashMap;
+   // private JTextField target;
 
-    private int count=1;
 
-    public UI(){
-        addToConfirm();
+    private int count = 1;
+
+    public UI() {
+        constraintHashMap = new HashMap<>();
+        start();
     }
 
-    public static void mainUI(){
+    public static void mainUI() {
         frame = new JFrame("线性规划助手");
         frame.setContentPane(new UI().panel1);
-        frame.setSize(600,600); //设置大小
+        frame.setSize(600, 600); //设置大小
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
 
 
-
-    public void addToConfirm(){
+    public void start() {
         confirm.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String temp = variates_num.getText().replace(" ","");
+                String temp = variates_num.getText().replace(" ", "");
                 int num;
-                if(temp!="") num = Integer.parseInt(temp);
-                else num=0;
-                String tp = (String)type.getSelectedItem();
-                if(num>=2 && num<9) startNewCalculation(tp,new InputContoller(num));
-                if(num>=9) JOptionPane.showMessageDialog(panel1, "变量过多", "警告",JOptionPane.WARNING_MESSAGE);
-                if(num<2) JOptionPane.showMessageDialog(panel1, "变量过少", "警告",JOptionPane.WARNING_MESSAGE);
+                if (temp != "") num = Integer.parseInt(temp);
+                else num = 0;
+                String tp = (String) type.getSelectedItem();
+                if (num >= 2 && num < 9) startNewCalculation(tp, new InputContoller(num));
+                if (num >= 9) JOptionPane.showMessageDialog(panel1, "变量过多", "警告", JOptionPane.WARNING_MESSAGE);
+                if (num < 2) JOptionPane.showMessageDialog(panel1, "变量过少", "警告", JOptionPane.WARNING_MESSAGE);
             }
         });
     }
 
-    public void startNewCalculation(String type,InputContoller input){
+    public void startNewCalculation(String type, InputContoller input) {
         String target_index;
-        if(type=="最大值")  target_index = "Max z = ";
+        if (type == "最大值") target_index = "Max z = ";
         else target_index = "Min z = ";
-        setTargetUI(target_index,input);
+        enterTarget(target_index, input);
         setConstraintUI(input);
-        addToConstraint(input);
+        enterConstraint(input);
+        calculate(input);
     }
 
-    public void setTargetUI(String target_index,InputContoller input){
-        frame.setContentPane(panel1);
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        for(int i=0;i<input.getNum();i++){
-            target_index+="? "+input.getVariates(i);
-            if(i!=input.getNum()-1) target_index+=" + ";
+    public Model getModel(InputContoller input) {
+        Target target = getTarget(input);
+        return null;
+    }
+
+    public Target getTarget(InputContoller input) {
+        Target target = input.getTarget(this.target.getText());
+        return target;
+    }
+
+    public Constraint[] getConstraint(InputContoller input) {
+        return null;
+    }
+
+    public void createComponentMap(JPanel panel) {
+        Component[] components = panel.getComponents();
+        for (int i = 0; i < components.length; i++) {
+            constraintHashMap.put(components[i].getName(), components[i]);
         }
-        JTextField target = new JTextField(target_index);
-        panel1.add(target,gbc);
-        frame.setContentPane(panel1);
     }
 
-    public void setConstraintUI(InputContoller input){
+    public Component getComponentByName(String name) {
+        if (constraintHashMap.containsKey(name)) {
+            return constraintHashMap.get(name);
+        }
+        else return null;
+    }
+
+    public void calculate(InputContoller input) {
+
+        calculate.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createComponentMap(constraint);
+                Model model = getModel(input);
+            }
+        });
+    }
+
+    public void enterTarget(String target_index, InputContoller input) {
+
+        for (int i = 0; i < input.getNum(); i++) {
+            target_index += "? " + input.getVariates(i);
+            if (i != input.getNum() - 1) target_index += " + ";
+        }
+       target.setText(target_index);
+
+    }
+
+    public void setConstraintUI(InputContoller input) {
         frame.setContentPane(panel1);
-        String cons="";
-        constraint.setLayout(new GridLayout(10,1));
+        String cons = "";
+        constraint.setLayout(new GridLayout(10, 1));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
         gbc.gridy = 0;
-        for(int i=0;i<input.getNum();i++){
-            cons+="? "+input.getVariates(i);
-            if(i!=input.getNum()-1) cons+=" + ";
+        for (int i = 0; i < input.getNum(); i++) {
+            cons += "? " + input.getVariates(i);
+            if (i != input.getNum() - 1) cons += " + ";
         }
-        cons+="<= ?";
-        constraint.add(new JTextField(cons),gbc);
+        cons += "<= ?";
+        JTextField constraint_text = new JTextField(cons);
+        constraint_text.setName("cons0");
+        constraint.add(constraint_text, gbc);
         frame.setContentPane(panel1);
     }
 
-    public void addToConstraint(InputContoller input){
+    public void enterConstraint(InputContoller input) {
         addConstraint.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.setContentPane(panel1);
-                String cons="";
+                String cons = "";
                 GridBagConstraints gbc = new GridBagConstraints();
                 gbc.fill = GridBagConstraints.HORIZONTAL;
                 gbc.gridx = 0;
                 gbc.gridy = count;
-                for(int i=0;i<input.getNum();i++){
-                    cons+="? "+input.getVariates(i);
-                    if(i!=input.getNum()-1) cons+=" + ";
+                for (int i = 0; i < input.getNum(); i++) {
+                    cons += "? " + input.getVariates(i);
+                    if (i != input.getNum() - 1) cons += " + ";
                 }
-                cons+="<= ?";
+                cons += "<= ?";
                 count++;
-                constraint.add(new JTextField(cons),gbc);
+                JTextField constraint_text = new JTextField(cons);
+                constraint_text.setName("cons"+count);
+                constraint.add(constraint_text, gbc);
                 frame.setContentPane(panel1);
             }
         });
