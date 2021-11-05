@@ -76,7 +76,7 @@ public class UI {
     }
 
     public Constraint[] getConstraint(InputContoller input) {
-        Constraint[] constraints = new Constraint[input.getNum()];
+        Constraint[] constraints = new Constraint[count];
         for(int i=0;i<count;i++){
             String name = "cons"+i;
             JTextField cons_text = (JTextField)getComponentByName(name);
@@ -106,6 +106,7 @@ public class UI {
             public void actionPerformed(ActionEvent e) {
                 createComponentMap(constraint);
                 Model model = getModel(type,input);
+                Result res = model.solve();
             }
         });
     }
