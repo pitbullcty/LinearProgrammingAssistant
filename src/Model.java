@@ -54,7 +54,6 @@ public class Model {
             baseVarites[indexOut] = indexIN;
         }//更新检验数
         for (int i = 0; i < n; i++) {
-
             for (int j = 0; j < m; j++) {
                 sigma[i] -= A[j][i] * C[baseVarites[j]];
             }
@@ -110,17 +109,31 @@ public class Model {
         }
     } //高斯消元变换矩阵
 
-    public double[] getBest(){
+    public Result getBest(){
         double z=0;
         double[] res= new double[m+1];
+        boolean isINF = false;
+        int count=0;
+        for(int i=0;i<sigma.length;i++){
+            if(sigma[i]==0){
+                for(int j=0;j<baseVarites.length;j++){
+                    if(baseVarites[j]==i){
+                        isINF = true;
+                        continue;
+                    }
+                }
+                if(!isINF){
+                    return new Result("有无穷多个解！");
+                }
+            }
+        } //是否有非基变量为0
         for (int i = 0; i < baseVarites.length; i++) {
             z += C[baseVarites[i]] * b[i];
             res[baseVarites[i]] = b[i];
         }
         res[res.length-1]=z;
-        return res;
+        return new Result(res);
     }
-
 
 
     public Result solve(){
@@ -131,7 +144,7 @@ public class Model {
                 return new Result("原问题有无界解"); //若没有换出变量
             updateMatrix(); //更新矩阵
         }
-        return new Result(getBest());
+        return getBest();
     }
 
 }

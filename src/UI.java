@@ -2,8 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 
@@ -20,8 +18,9 @@ public class UI {
     private JPanel constraint;
     private JTextField target;
     private HashMap<String, Component> constraintHashMap;
+    private Result res;
 
-   // private JTextField target;
+    // private JTextField target;
 
 
     private int count = 0;
@@ -32,11 +31,18 @@ public class UI {
     }
 
     public static void mainUI() {
-        frame = new JFrame("线性规划助手");
+        if(frame==null) frame = new JFrame("线性规划助手");
         frame.setContentPane(new UI().panel1);
         frame.setSize(600, 600); //设置大小
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
+    }
+
+    public static void resUI(){
+        if(frame==null) frame = new JFrame("线性规划助手");
+        Panel panel2 = new Panel();
+        panel2 =
+
     }
 
 
@@ -58,31 +64,45 @@ public class UI {
         });
     }
 
+
     public void startNewCalculation(String type, InputContoller input) {
         enterTarget(type, input);
         enterConstraint(input);
-        calculate(type,input);
+        calculate(type, input);
+        showResults();
     }
 
-    public Model getModel(String type,InputContoller input) {
-        Target target = getTarget(type,input);
+    public Model getModel(String type, InputContoller input) {
+        Target target = getTarget(type, input);
         Constraint[] constraints = getConstraint(input);
-        return new Model(constraints,target);
+        return new Model(constraints, target);
+
     }
 
-    public Target getTarget(String type,InputContoller input) {
-        Target target = input.getTarget(type,this.target.getText());
-        return target;
+    public Target getTarget(String type, InputContoller input) {
+        try {
+            Target target = input.getTarget(type, this.target.getText());
+            return target;
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(panel1, "优化目标有误！", "警告", JOptionPane.WARNING_MESSAGE);
+        }
+        return null;
     }
 
     public Constraint[] getConstraint(InputContoller input) {
-        Constraint[] constraints = new Constraint[count];
-        for(int i=0;i<count;i++){
-            String name = "cons"+i;
-            JTextField cons_text = (JTextField)getComponentByName(name);
-            constraints[i] = input.getConstraint(cons_text.getText());
+        try{
+            Constraint[] constraints = new Constraint[count];
+            for (int i = 0; i < count; i++) {
+                String name = "cons" + i;
+                JTextField cons_text = (JTextField) getComponentByName(name);
+                constraints[i] = input.getConstraint(cons_text.getText());
+            }
+            return constraints;
         }
-        return constraints;
+        catch (Exception e){
+            JOptionPane.showMessageDialog(panel1, "约束条件有误！", "警告", JOptionPane.WARNING_MESSAGE);
+        }
+        return null;
     }
 
     public void createComponentMap(JPanel panel) {
@@ -95,21 +115,21 @@ public class UI {
     public Component getComponentByName(String name) {
         if (constraintHashMap.containsKey(name)) {
             return constraintHashMap.get(name);
-        }
-        else return null;
+        } else return null;
     }
 
-    public void calculate(String type,InputContoller input) {
 
+    public void calculate(String type, InputContoller input) {
         calculate.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 createComponentMap(constraint);
-                Model model = getModel(type,input);
-                Result res = model.solve();
+                Model model = getModel(type, input);
+                res = model.solve();
             }
         });
     }
+
 
     public void enterTarget(String type, InputContoller input) {
         String target_index;
@@ -119,7 +139,7 @@ public class UI {
             target_index += "? " + input.getVariates(i);
             if (i != input.getNum() - 1) target_index += " + ";
         }
-       target.setText(target_index);
+        target.setText(target_index);
     }
 
 
@@ -139,12 +159,16 @@ public class UI {
                 }
                 cons += "<= ?";
                 JTextField constraint_text = new JTextField(cons);
-                constraint_text.setName("cons"+count);
+                constraint_text.setName("cons" + count);
                 count++;
                 constraint.add(constraint_text, gbc);
                 frame.setContentPane(panel1);
             }
         });
+    }
+
+    public void showResults(){
+
     }
 
 

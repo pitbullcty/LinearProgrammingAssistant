@@ -44,7 +44,7 @@ public class InputContoller {
         return new Target(data);
     }
 
-    public Constraint getConstraint(String constraint) {
+    public Constraint getConstraint(String constraint)  {
         int[] num_index = new int[num];
         double[] data = new double[num+1];
         int[] op_index = new int[num];
