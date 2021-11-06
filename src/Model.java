@@ -1,3 +1,4 @@
+import java.util.Arrays;
 
 public class Model {
     private int m;  //方程个数
@@ -35,6 +36,7 @@ public class Model {
                 for(int j=0;j<n;j++){
                     if(j<temp.length-1){
                         C[j] = tar.getTarget_data()[j];
+                        sigma[j] = C[j];
                         A[i][j] = temp[j];
                     }
                     else{
@@ -52,18 +54,17 @@ public class Model {
             baseVarites[indexOut] = indexIN;
         }//更新检验数
         for (int i = 0; i < n; i++) {
-            double temp = sigma[i];
+
             for (int j = 0; j < m; j++) {
-                temp -= A[j][i] * C[baseVarites[j]];
+                sigma[i] -= A[j][i] * C[baseVarites[j]];
             }
-            sigma[i] = temp;
         }
         boolean isbest = true;
         for (int i = 0; i <  sigma.length; i++) {
             if(sigma[i] > 0)
                 isbest = false;
         }
-        return !isbest;
+        return isbest;
     } //判断是否具有最优解
 
 
@@ -79,21 +80,16 @@ public class Model {
 
     public int findIndexOut(){
         int index = 0;
+        int count = 0;
         for (int i = 0; i < m; i++) {
-            if( Double.compare(A[i][indexIN], 0) != 0)
-                theta[i] = b[i] / A[i][indexIN];
-            else {
-                theta[i] = 0;
-            }
+            theta[i] = b[i] / A[i][indexIN];
+            if(A[i][indexIN]==0) count++;
         }
         for (int i = 0; i < theta.length; i++) {
-            if(theta[i] <= 0){
-                return -1;
-            }else {
                 if(theta[i] < theta[index])
                     index = i;
-            }
         }
+        if(count==3) return -1;
         return index;
     }
 
@@ -119,9 +115,9 @@ public class Model {
         double[] res= new double[m+1];
         for (int i = 0; i < baseVarites.length; i++) {
             z += C[baseVarites[i]] * b[i];
-            res[i] = b[i];
+            res[baseVarites[i]] = b[i];
         }
-        res[res.length]=z;
+        res[res.length-1]=z;
         return res;
     }
 
@@ -132,7 +128,7 @@ public class Model {
             indexIN = findIndexIN(); //找换入变量
             indexOut = findIndexOut(); //找换出变量
             if(indexOut == -1)
-                return new Result("无可行解！"); //若没有换出变量
+                return new Result("原问题有无界解"); //若没有换出变量
             updateMatrix(); //更新矩阵
         }
         return new Result(getBest());

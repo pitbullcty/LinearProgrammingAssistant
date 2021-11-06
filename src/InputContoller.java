@@ -39,7 +39,7 @@ public class InputContoller {
             c=-1;
         }
         for(int i=0;i<num;i++){
-            data[i] =c * Double.parseDouble(target.substring(op_index[i]+1,num_index[i]));
+            data[i] = c * Double.parseDouble(target.substring(op_index[i]+1,num_index[i]));
         }
         return new Target(data);
     }
