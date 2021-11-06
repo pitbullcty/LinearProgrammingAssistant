@@ -3,7 +3,6 @@ public class Target{
 
     public Target(double[] data){
         target_data = data.clone();
-
     }
 
     public double[] getTarget_data() {

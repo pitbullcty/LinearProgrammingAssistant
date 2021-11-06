@@ -3,7 +3,6 @@ public class Constraint{
     Constraint(double[] data){
         constraint_data = data.clone();
     }
-
     public double[] getConstraintdata() {
         return constraint_data;
     }

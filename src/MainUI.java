@@ -5,7 +5,7 @@ import java.awt.event.ActionListener;
 import java.util.HashMap;
 
 
-public class UI {
+public class MainUI {
 
     private static JFrame frame;
     private JPanel panel1;
@@ -18,31 +18,30 @@ public class UI {
     private JPanel constraint;
     private JTextField target;
     private HashMap<String, Component> constraintHashMap;
-    private Result res;
 
-    // private JTextField target;
 
 
     private int count = 0;
 
-    public UI() {
+    public MainUI() {
         constraintHashMap = new HashMap<>();
         start();
     }
 
     public static void mainUI() {
-        if(frame==null) frame = new JFrame("线性规划助手");
-        frame.setContentPane(new UI().panel1);
+        if (frame == null) frame = new JFrame("线性规划助手");
+        frame.setContentPane(new MainUI().panel1);
         frame.setSize(600, 600); //设置大小
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
 
-    public static void resUI(){
-        if(frame==null) frame = new JFrame("线性规划助手");
-        Panel panel2 = new Panel();
-        panel2 =
-
+    public static void resUI(Result res) {
+        if (frame == null) frame = new JFrame("线性规划助手");
+        frame.setContentPane(new ResUI(res).getPanel1());
+        frame.setSize(600, 600); //设置大小
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
     }
 
 
@@ -69,7 +68,6 @@ public class UI {
         enterTarget(type, input);
         enterConstraint(input);
         calculate(type, input);
-        showResults();
     }
 
     public Model getModel(String type, InputContoller input) {
@@ -90,7 +88,7 @@ public class UI {
     }
 
     public Constraint[] getConstraint(InputContoller input) {
-        try{
+        try {
             Constraint[] constraints = new Constraint[count];
             for (int i = 0; i < count; i++) {
                 String name = "cons" + i;
@@ -98,8 +96,7 @@ public class UI {
                 constraints[i] = input.getConstraint(cons_text.getText());
             }
             return constraints;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(panel1, "约束条件有误！", "警告", JOptionPane.WARNING_MESSAGE);
         }
         return null;
@@ -125,7 +122,8 @@ public class UI {
             public void actionPerformed(ActionEvent e) {
                 createComponentMap(constraint);
                 Model model = getModel(type, input);
-                res = model.solve();
+                Result res = model.solve();
+                if (res != null) showResults(res);
             }
         });
     }
@@ -167,8 +165,8 @@ public class UI {
         });
     }
 
-    public void showResults(){
-
+    public void showResults(Result res) {
+        resUI(res);
     }
 
 

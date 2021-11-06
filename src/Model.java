@@ -3,6 +3,7 @@ import java.util.Arrays;
 public class Model {
     private int m;  //方程个数
     private int n;  //变量个数
+    private int on; //初始变量个数
     private double[][] A; //系数矩阵
     private double[] C;//价值矩阵
     private double[] b; //资源常数
@@ -21,6 +22,7 @@ public class Model {
 
     public void convertToModel(Constraint[] cons,Target tar){
         m = cons.length;
+        on = tar.getTarget_data().length;
         n = tar.getTarget_data().length+m;
         A = new double[m][n];
         C = new double[n];
@@ -111,9 +113,9 @@ public class Model {
 
     public Result getBest(){
         double z=0;
-        double[] res= new double[m+1];
+        double[] temp= new double[n+1];
+        double[] res= new double[on+1];
         boolean isINF = false;
-        int count=0;
         for(int i=0;i<sigma.length;i++){
             if(sigma[i]==0){
                 for(int j=0;j<baseVarites.length;j++){
@@ -129,9 +131,12 @@ public class Model {
         } //是否有非基变量为0
         for (int i = 0; i < baseVarites.length; i++) {
             z += C[baseVarites[i]] * b[i];
-            res[baseVarites[i]] = b[i];
+            temp[baseVarites[i]] = b[i];
         }
-        res[res.length-1]=z;
+        for(int i=0;i<on;i++){
+            res[i] = temp[i];
+        }
+        res[on] = z;
         return new Result(res);
     }
 
