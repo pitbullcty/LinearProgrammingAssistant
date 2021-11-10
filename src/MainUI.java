@@ -19,8 +19,6 @@ public class MainUI {
     private JTextField target;
     private HashMap<String, Component> constraintHashMap;
 
-
-
     private int count = 0;
 
     public MainUI() {
@@ -55,8 +53,8 @@ public class MainUI {
                 if (temp != "") num = Integer.parseInt(temp);
                 else num = 0;
                 String tp = (String) type.getSelectedItem();
-                if (num >= 2 && num < 9) startNewCalculation(tp, new InputContoller(num));
-                if (num >= 9) JOptionPane.showMessageDialog(panel1, "变量过多", "警告", JOptionPane.WARNING_MESSAGE);
+                if (num >= 2) startNewCalculation(tp, new InputContoller(num));
+              //if (num >= 9) JOptionPane.showMessageDialog(panel1, "变量过多", "警告", JOptionPane.WARNING_MESSAGE);
                 if (num < 2) JOptionPane.showMessageDialog(panel1, "变量过少", "警告", JOptionPane.WARNING_MESSAGE);
 
             }
