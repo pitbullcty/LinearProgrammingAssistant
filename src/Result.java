@@ -12,6 +12,10 @@ public class Result {
         result_data =null;
     }
 
+    public String save(){
+        return toString();
+    }
+
     public String toString(){
         if(result_data!=null){
             String res="最优解为\n";

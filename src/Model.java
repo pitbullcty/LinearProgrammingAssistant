@@ -1,4 +1,3 @@
-import java.util.Arrays;
 
 public class Model {
     private int m;  //方程个数
@@ -67,7 +66,6 @@ public class Model {
         }
         return isbest;
     } //判断是否具有最优解
-
 
     public int findIndexIN() {
         int index = 0;
@@ -140,8 +138,7 @@ public class Model {
         return new Result(res);
     }
 
-
-    public Result solve(){
+    public Result calculate(){
         while (!isBest()) {  //判断最优解
             indexIN = findIndexIN(); //找换入变量
             indexOut = findIndexOut(); //找换出变量

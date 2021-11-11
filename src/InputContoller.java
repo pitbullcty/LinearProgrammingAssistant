@@ -10,11 +10,11 @@ public class InputContoller {
         for (int i = 0; i < num; i++) {
             variates[i] = "x" + i;
         }
-    } //生成变量名
+    }
 
     public String getVariates(int index) {
         return variates[index];
-    }
+    } //生成变量名
 
     public int getNum() {
         return num;
@@ -42,7 +42,7 @@ public class InputContoller {
             data[i] = c * Double.parseDouble(target.substring(op_index[i]+1,num_index[i]));
         }
         return new Target(data);
-    }
+    } //获取优化目标
 
     public Constraint getConstraint(String constraint)  throws NumberFormatException,IndexOutOfBoundsException{
         int[] num_index = new int[num];
@@ -68,6 +68,6 @@ public class InputContoller {
             }
         }
         return new Constraint(data);
-    }
+    } //获取限制条件
 
 }
