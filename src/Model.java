@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class Model {
 
@@ -138,6 +140,7 @@ public class Model {
             C = tempC;
         }
 
+
         for (int i = 0; i < UnitMatrix.length; i++) {
             for (int j = 0; j < C.length; j++) {
                 temp_sigma[j] -= C[UnitMatrix[i][1]] * A[UnitMatrix[i][0]][j];
@@ -149,45 +152,40 @@ public class Model {
 
     }
 
-    private boolean hasNegative() {
+    private boolean hasPositive() {
         for (int i = 0; i < sigma.length; i++) {
-            if (sigma[i] < 0)
+            if (sigma[i] > 0)
                 return true;
         }
         return false;
     }
 
-    private int[] selectBaseVar() {
+    private int selectBaseVar() {
 
-        int indexOfC[] = new int[sigma.length];
-
-        for (int i = 0; i < indexOfC.length; i++) {
-            indexOfC[i] = -1;
-        }
-
-        ArrayList<Integer> indexList = new ArrayList<Integer>();
+        ArrayList<Double> max = new ArrayList<Double>();
+        ArrayList<Double> si = new ArrayList<>();
 
         for (int i = 0; i < sigma.length; i++) {
-            if (sigma[i] < 0)
-                indexList.add(i);
+            si.add(sigma[i]);
+            if(sigma[i]>0) max.add(sigma[i]);
         }
 
-        for (int i = 0; i < indexList.size(); i++) {
-            indexOfC[i] = indexList.get(i);
-        }
+        int index = si.indexOf(Collections.max(max));  //最大的作为进基变量
 
-        return indexOfC;
+        return index;
     }
 
-    private int[] selectOffBaseVar(int[] indexOfBaseVar) {
+    private int[] selectOffBaseVar(int index) {
 
-        int[] indexOfMin = new int[2];
-        for (int i = 0; i < indexOfMin.length; i++) {
-            indexOfMin[i] = -1;
+        int[] indexOfOffBaseVar = new int[2];
+
+        for (int i = 0; i < indexOfOffBaseVar.length; i++) {
+            indexOfOffBaseVar[i] = -1;
         }
         // min初始化时设置一个足够大的数
         double min = 1e10;
-        for (int k = 0; k < b.length; k++) {
+
+      /*  for (int k = 0; k < b.length; k++) {
             if (b[k] == 0) {
                 for (int i = 0; i < indexOfBaseVar.length; i++) {
                     if (i >= 0) {
@@ -201,51 +199,57 @@ public class Model {
                     }
                 }
             }
-        } // 当系数为0时，可能存在退化,选取底行左边第一个负元素k避免循环
+        } // 当系数为0时，可能存在退化,选取底行左边第一个非负元素k避免循环
 
         if (indexOfMin[0] > -1) {
             return indexOfMin;
-        }
+        }*/
 
-        for (int i = 0; i < indexOfBaseVar.length; i++) {
-            if (i >= 0) {
-                for (int j = 0; j < A.length; j++) {
-                    if (A[j][i] > 0 && b[j] / A[j][i] < min) {
-                        // min要重新赋最小值
-                        min = b[j] / A[j][i];
-                        indexOfMin[0] = j;
-                        indexOfMin[1] = i;
-                    }
-                }
+        for (int j = 0; j < A.length; j++) {
+            if (A[j][index] > 0 && b[j] / A[j][index] < min) {
+                min = b[j] / A[j][index];
+                indexOfOffBaseVar[0] = j;
+                indexOfOffBaseVar[1] = index;
             }
         }
 
-        return indexOfMin;
+        return indexOfOffBaseVar;
+
     }
 
-    private double rotation(double[][] a, double[] b, double[] c, double z, int[] indexOfOffBaseVar) {
-        // 若直接将a[indexOfOffBaseVar[0]][indexOfOffBaseVar[1]]放进表达式中，此值在循环过程中会变化，故先将此值复制出来
-        double temp1 = a[indexOfOffBaseVar[0]][indexOfOffBaseVar[1]];
-        for (int j = 0; j < a[indexOfOffBaseVar[0]].length; j++) {
-            a[indexOfOffBaseVar[0]][j] /= temp1;
+
+    //旋转操作
+    private void rotation(int[]indexOfOffBaseVar) {
+        double temp1 = A[indexOfOffBaseVar[0]][indexOfOffBaseVar[1]];  //主元位置
+
+        for (int j = 0; j < A[indexOfOffBaseVar[0]].length; j++) {
+            A[indexOfOffBaseVar[0]][j] /= temp1;
         }
-        b[indexOfOffBaseVar[0]] /= temp1;
-        for (int i = 0; i < a.length; i++) {
+
+        b[indexOfOffBaseVar[0]] /= temp1;  //主元行变换
+
+        for (int i = 0; i < A.length; i++) {
             if (i != indexOfOffBaseVar[0]) {
-                double[] temp2 = Arrays.copyOf(a[i], a[i].length);
-                for (int j = 0; j < a[i].length; j++) {
-                    a[i][j] -= temp2[indexOfOffBaseVar[1]] / a[indexOfOffBaseVar[0]][indexOfOffBaseVar[1]]
-                            * a[indexOfOffBaseVar[0]][j];
+                double[] temp2 = Arrays.copyOf(A[i], A[i].length);
+                for (int j = 0; j < A[i].length; j++) {
+                    A[i][j] -= temp2[indexOfOffBaseVar[1]] / A[indexOfOffBaseVar[0]][indexOfOffBaseVar[1]]
+                            * A[indexOfOffBaseVar[0]][j];
                 }
-                b[i] -= temp2[indexOfOffBaseVar[1]] / a[indexOfOffBaseVar[0]][indexOfOffBaseVar[1]] * b[indexOfOffBaseVar[0]];
+                b[i] -= temp2[indexOfOffBaseVar[1]] / A[indexOfOffBaseVar[0]][indexOfOffBaseVar[1]] * b[indexOfOffBaseVar[0]];
             }
+        }//其他行变换
+
+
+        for (int i = 0; i < A.length; i++) {
+            for (int j = 0; j < C.length; j++) {
+                sigma[j] -= C[UnitMatrix[i][1]] * A[UnitMatrix[i][0]][j];
+            }
+            //  z -= C[UnitMatrix[i][1]] * b[UnitMatrix[i][0]];
         }
-        double temp3 = c[indexOfOffBaseVar[1]];
-        for (int j = 0; j < c.length; j++) {
-            c[j] -= temp3 / a[indexOfOffBaseVar[0]][indexOfOffBaseVar[1]] * a[indexOfOffBaseVar[0]][j];
-        }
-        z -= temp3 / a[indexOfOffBaseVar[0]][indexOfOffBaseVar[1]] * b[indexOfOffBaseVar[0]];
-        return z;
+
+        //计算检验数
+       // z -= temp3 / A[indexOfOffBaseVar[0]][indexOfOffBaseVar[1]] * b[indexOfOffBaseVar[0]];
+       // return z;
     }
 
 
