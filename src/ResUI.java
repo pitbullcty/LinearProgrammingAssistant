@@ -63,9 +63,10 @@ public class ResUI {
             out = new BufferedWriter(new FileWriter(filename));
             out.write(results.getText()+"\n");
             out.write("");
-            out.write(formatter2.format(date));
+            out.write(formatter2.format(date)+"\n");
             out.write(String.format("本次运算时间为%.2f ms",res.getTime()));
             out.close();
+            JOptionPane.showMessageDialog(panel1, "保存成功", "提示", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException e) {
             e.printStackTrace();
         }

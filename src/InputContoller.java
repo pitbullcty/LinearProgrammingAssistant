@@ -47,6 +47,11 @@ public class InputContoller {
         double[] data = new double[num+1];
         int[] op_index = new int[num];
         int j=0;
+        int type=1;
+        if(constraint.contains(">=")) type=-1;
+        if(constraint.contains("=") && !constraint.contains(">=") && !constraint.contains("<=")){
+            type=0;
+        }
         constraint = constraint.replace(" ", "");
         for (int i = 0; i < num; i++) {
             num_index[i] = constraint.indexOf(variates[i]);
@@ -65,7 +70,7 @@ public class InputContoller {
                 data[i] = Double.parseDouble(constraint.substring(op_index[i-1]+1));
             }
         }
-        return new Constraint(data);
+        return new Constraint(data,type);
     } //获取限制条件
 
 
