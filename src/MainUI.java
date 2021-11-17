@@ -19,6 +19,7 @@ public class MainUI {
     private JTextField target;
     private HashMap<String, Component> constraintHashMap;
     private int count = 0;
+    private int num;
 
     public MainUI() {
         constraintHashMap = new HashMap<>();
@@ -43,6 +44,10 @@ public class MainUI {
     }  //输入优化目标
 
     public void enterConstraint(InputContoller input) {
+        ActionListener[] action = addConstraint.getActionListeners();
+        if(action.length!=0){
+            addConstraint.removeActionListener(action[0]);
+        }
         addConstraint.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -144,16 +149,21 @@ public class MainUI {
     }  //显示结果界面
 
     public void start() {
+
         constraint.setLayout(new GridLayout(20, 1));
         confirm.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                int prenum = num;
                 String temp = variates_num.getText().replace(" ", "");
-                int num;
                 if (temp != "") num = Integer.parseInt(temp);
                 else num = 0;
                 String tp = (String) type.getSelectedItem();
-                if (num >= 2) startNewCalculation(tp, new InputContoller(num));
+                if (num >= 2 && prenum!=num) {
+                    constraint.removeAll();
+                    constraint.repaint();
+                    startNewCalculation(tp, new InputContoller(num));
+                }
                 if (num < 2) JOptionPane.showMessageDialog(panel1, "变量过少", "警告", JOptionPane.WARNING_MESSAGE);
 
             }

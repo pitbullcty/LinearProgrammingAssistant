@@ -1,5 +1,3 @@
-
-
 public class InputContoller {
     private int num;
     private String[] variates;
@@ -69,5 +67,9 @@ public class InputContoller {
         }
         return new Constraint(data);
     } //获取限制条件
+
+    public void toStandardForm() throws Exception{
+        ;
+    }
 
 }

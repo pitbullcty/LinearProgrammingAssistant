@@ -12,11 +12,11 @@ public class Result {
         result_data =null;
     }
 
-    public String save(){
-        return toString();
+    public String toString(){
+        return save();
     }
 
-    public String toString(){
+    public String save(){
         if(result_data!=null){
             String res="最优解为\n";
             for(int i=0;i<result_data.length-1;i++){
