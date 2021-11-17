@@ -14,11 +14,17 @@ public class ResUI {
     private JTextArea results;
     private JButton save;
     private JButton continuity;
+    private JLabel time;
 
     public ResUI(Result res){
-        addTosave();
+        setTime(res);
+        addTosave(res);
         addToContinuity();
         results.append(res.toString());
+    }
+
+    public void setTime(Result res) {
+        time.setText(String.format("本次运算时间为%.2f ms",res.getTime()));
     }
 
     public void addToContinuity(){
@@ -30,11 +36,11 @@ public class ResUI {
         });
     }
 
-    public void addTosave(){
+    public void addTosave(Result res){
         save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                save();
+                save(res);
             }
         });
     }
@@ -43,7 +49,7 @@ public class ResUI {
         return panel1;
     }
 
-    public void save(){
+    public void save(Result res){
         Date date = new Date();
         SimpleDateFormat formatter1 = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
         SimpleDateFormat formatter2 = new SimpleDateFormat("yyy-MM-dd HH:mm:ss");
@@ -56,9 +62,10 @@ public class ResUI {
         try {
             out = new BufferedWriter(new FileWriter(filename));
             out.write(results.getText()+"\n");
+            out.write("");
             out.write(formatter2.format(date));
+            out.write(String.format("本次运算时间为%.2f ms",res.getTime()));
             out.close();
-
         } catch (IOException e) {
             e.printStackTrace();
         }

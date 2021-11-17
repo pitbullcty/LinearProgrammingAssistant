@@ -138,7 +138,7 @@ public class Model {
         return new Result(res);
     }
 
-    public Result calculate(){
+    public Result calc(){
         while (!isBest()) {  //判断最优解
             indexIN = findIndexIN(); //找换入变量
             indexOut = findIndexOut(); //找换出变量

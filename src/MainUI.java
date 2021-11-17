@@ -2,7 +2,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 
 
 public class MainUI {
@@ -15,14 +17,14 @@ public class MainUI {
     private JButton calculate;
     private JButton addConstraint;
     private JScrollPane scrollpane;
-    private JPanel constraint;
     private JTextField target;
-    private HashMap<String, Component> constraintHashMap;
+    private JTextArea constraint;
+
     private int count = 0;
     private int num;
 
     public MainUI() {
-        constraintHashMap = new HashMap<>();
+
         start();
     }
 
@@ -51,22 +53,14 @@ public class MainUI {
         addConstraint.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                frame.repaint();
                 String cons = "";
-                GridBagConstraints gbc = new GridBagConstraints();
-                gbc.fill = GridBagConstraints.HORIZONTAL;
-                gbc.gridx = 0;
-                gbc.gridy = count;
                 for (int i = 0; i < input.getNum(); i++) {
                     cons += "? " + input.getVariates(i);
                     if (i != input.getNum() - 1) cons += " + ";
                 }
-                cons += "<= ?";
-                JTextField constraint_text = new JTextField(cons);
-                constraint_text.setName("cons" + count);
-                count++;
-                constraint.add(constraint_text, gbc);
-                frame.setContentPane(panel1);
+                cons += "<= ?\n";
+                constraint.append(cons);
+
             }
         });
     }  //输入约束条件
@@ -75,10 +69,14 @@ public class MainUI {
         calculate.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                createComponentMap(constraint);
+                double start_time = System.nanoTime();
                 Model model = getModel(type, input);
-                Result res = model.calculate();
-                if (res != null) showResults(res);
+                Result res = model.calc();
+                double end_time = System.nanoTime();
+                if (res != null) {
+                    res.setTime((end_time-start_time)/100000);
+                    showResults(res);
+                }
             }
         });
     }  //开始计算
@@ -87,18 +85,6 @@ public class MainUI {
         resUI(res);
     }  //展示结果
 
-    public void createComponentMap(JPanel panel) {
-        Component[] components = panel.getComponents();
-        for (int i = 0; i < components.length; i++) {
-            constraintHashMap.put(components[i].getName(), components[i]);
-        }
-    }
-
-    public Component getComponentByName(String name) {
-        if (constraintHashMap.containsKey(name)) {
-            return constraintHashMap.get(name);
-        } else return null;
-    }
 
     public Model getModel(String type, InputContoller input) {
         Target target = getTarget(type, input);
@@ -112,6 +98,7 @@ public class MainUI {
             Target target = input.getTarget(type, this.target.getText());
             return target;
         } catch (Exception e) {
+            e.printStackTrace();
             JOptionPane.showMessageDialog(panel1, "优化目标有误！", "警告", JOptionPane.WARNING_MESSAGE);
         }
         return null;
@@ -119,14 +106,14 @@ public class MainUI {
 
     public Constraint[] getConstraint(InputContoller input) {
         try {
-            Constraint[] constraints = new Constraint[count];
-            for (int i = 0; i < count; i++) {
-                String name = "cons" + i;
-                JTextField cons_text = (JTextField) getComponentByName(name);
-                constraints[i] = input.getConstraint(cons_text.getText());
+            ArrayList<Constraint> constraints = new ArrayList<>();
+            String temp[] = constraint.getText().split("\n");
+            for(int i=0;i<temp.length;i++){
+                constraints.add(input.getConstraint(temp[i]));
             }
-            return constraints;
+            return constraints.toArray(Constraint[]::new);
         } catch (Exception e) {
+            e.printStackTrace();
             JOptionPane.showMessageDialog(panel1, "约束条件有误！", "警告", JOptionPane.WARNING_MESSAGE);
         }
         return null;
@@ -150,7 +137,6 @@ public class MainUI {
 
     public void start() {
 
-        constraint.setLayout(new GridLayout(20, 1));
         confirm.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -160,12 +146,10 @@ public class MainUI {
                 else num = 0;
                 String tp = (String) type.getSelectedItem();
                 if (num >= 2 && prenum!=num) {
-                    constraint.removeAll();
-                    constraint.repaint();
+                    constraint.setText("");
                     startNewCalculation(tp, new InputContoller(num));
                 }
                 if (num < 2) JOptionPane.showMessageDialog(panel1, "变量过少", "警告", JOptionPane.WARNING_MESSAGE);
-
             }
         });
     }

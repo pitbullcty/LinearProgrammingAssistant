@@ -83,14 +83,10 @@
         <properties/>
         <border type="none"/>
         <children>
-          <grid id="63590" binding="constraint" layout-manager="GridBagLayout">
+          <component id="21a45" class="javax.swing.JTextArea" binding="constraint">
             <constraints/>
             <properties/>
-            <border type="none">
-              <font/>
-            </border>
-            <children/>
-          </grid>
+          </component>
         </children>
       </scrollpane>
       <component id="e8b9b" class="javax.swing.JButton" binding="calculate">

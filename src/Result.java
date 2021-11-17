@@ -1,6 +1,7 @@
 public class Result {
     private double[] result_data;
-    String message;
+    private String message;
+    private double time;
 
     public Result(double[] data){
         result_data  = data.clone();
@@ -10,10 +11,19 @@ public class Result {
     public Result(String message){
         this.message = message;
         result_data =null;
+        this.time =0;
     }
 
     public String toString(){
         return save();
+    }
+
+    public void setTime(double time) {
+        this.time = time;
+    }
+
+    public double getTime() {
+        return time;
     }
 
     public String save(){
