@@ -1,3 +1,7 @@
+import javax.swing.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class Model {
 
@@ -23,9 +27,9 @@ public class Model {
 
     private int indexIN=-1;
     private int indexOut=-1;
+    private int addlength = 0; //人工变量个数
 
-
-
+    private boolean isDegeneration = false;
 
     public Model(Constraint[] cons, Target tar) {
         convertToModel(cons, tar);
@@ -37,7 +41,7 @@ public class Model {
 
         int addcons = 0;
         for (int i = 0; i < cons.length; i++) {
-            if (cons[i].gettype() != 2) {
+            if (cons[i].gettype() != 0) {
                 addcons++;
             }
         } //化为标准形式需要添加的个数
@@ -112,7 +116,7 @@ public class Model {
 
     //转换为大M法
     public void convertToBigM() {
-        int addlength = 0;
+
         for (int i = 0; i < m; i++) {
             if (UnitMatrix[i][0] == -1) addlength++;
         }//计算要增加的变量个数,使得矩阵中存在单位阵
@@ -159,7 +163,8 @@ public class Model {
         if(indexIN != -1 && indexOut != -1){
             baseVarites[indexOut] = indexIN;
         }//更新检验数
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < sigma.length; i++) {
+            sigma[i] = C[i];
             for (int j = 0; j < m; j++) {
                 sigma[i] -= A[j][i] * C[baseVarites[j]];
             }
@@ -168,7 +173,6 @@ public class Model {
         for (int i = 0; i <  sigma.length; i++) {
             if(sigma[i] > 0)
                 isbest = false;
-
         }
         return isbest;
     } //判断是否具有最优解
@@ -178,23 +182,47 @@ public class Model {
         for (int i = 0; i < sigma.length; i++) {
             if(sigma[i] > sigma[index]){
                 index = i;
-            } //找到sigma最大的换入
+            } //找到sigma中最大的换入
         }
         return index;
     }
 
     public int findIndexOut(){
+        ArrayList<Double> temp = new ArrayList<>();
+        ArrayList<Integer> same_index = new ArrayList<>();
         int index = 0;
         int count = 0;
+        int same_count=0;
+
+        double min = 0;
         for (int i = 0; i < m; i++) {
             theta[i] = b[i] / A[i][indexIN];
             if(A[i][indexIN]==0) count++;
         }
-        for (int i = 0; i < theta.length; i++) {
-            if(theta[i] < theta[index])
-                index = i;
+        for(int i=0;i<theta.length;i++){
+            if(theta[i]>0)  temp.add(theta[i]);
         }
         if(count==3) return -1;
+        min = Collections.min(temp);
+
+        for(int i=0;i<theta.length;i++){
+            if(theta[i]==min){
+                same_count++;
+                same_index.add(i);
+            }
+        }
+
+        if(same_count==1){
+            index = same_index.get(0);
+        }
+        else{
+            isDegeneration = true;
+            for(var i:same_index){
+                if(baseVarites[i]>=n) return i;
+            }
+            index =  same_index.get(0);
+        }  //处理退化，优先换出人工变量
+
         return index;
     }
 
@@ -217,9 +245,15 @@ public class Model {
 
     public Result getBest(){
         double z=0;
-        double[] temp= new double[n+1];
+        double[] temp= new double[sigma.length+1];
         double[] res= new double[on+1];
         boolean isINF = false;
+        for(int i=0;i<baseVarites.length;i++){
+            if(baseVarites[i]>=n){
+                return new Result("大M无法消去，无解！");
+            }
+        }
+
         for(int i=0;i<sigma.length;i++){
             if(sigma[i]==0){
                 for(int j=0;j<baseVarites.length;j++){
@@ -254,6 +288,10 @@ public class Model {
             updateMatrix(); //更新矩阵
         }
         return getBest();
+    }
+
+    public boolean getisDegeneration(){
+        return isDegeneration;
     }
 
 }
