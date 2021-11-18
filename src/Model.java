@@ -1,10 +1,7 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 
 public class Model {
 
-    private static double M = 999999; //大M法选取的M取值
+    private  final static double M = 999999; //大M法选取的M取值
 
     private int m;  //方程个数
     private int n;  //变量个数
@@ -21,7 +18,12 @@ public class Model {
     private double[] theta;  //行检验数
 
     private int[][] UnitMatrix; //记录单位子块位置
+    private int[] baseVarites;
     private double z;
+
+    private int indexIN=-1;
+    private int indexOut=-1;
+
 
 
 
@@ -41,10 +43,12 @@ public class Model {
         } //化为标准形式需要添加的个数
 
         n = tar.getTarget_data().length + addcons;
+        baseVarites = new int[m];
 
         A = new double[m][n];
         C = new double[n];
         b = new double[m];
+
         theta = new double[m];
         sigma = new double[n];
         UnitMatrix = new int[m][2];
@@ -77,6 +81,7 @@ public class Model {
     //判断是否需要使用大M法，即是否含有单位子矩阵
     public boolean isBigM() {
         for (int i = 0; i < UnitMatrix.length; i++) {
+            baseVarites[i] = -1;  //基变量值全部先取-1
             for (int j = 0; j < UnitMatrix[0].length; j++) {
                 UnitMatrix[i][j] = -1;
             }
@@ -97,7 +102,9 @@ public class Model {
                 }
             }
         }
+
         for (int i = 0; i < m; i++) {
+            baseVarites[i] = UnitMatrix[i][1];  //基变量为单位矩阵的位置
             if (UnitMatrix[i][0] == -1) return true;
         }
         return false;
@@ -140,24 +147,115 @@ public class Model {
             C = tempC;
         }
 
-
         for (int i = 0; i < UnitMatrix.length; i++) {
-            for (int j = 0; j < C.length; j++) {
-                temp_sigma[j] -= C[UnitMatrix[i][1]] * A[UnitMatrix[i][0]][j];
-            }
-          //  z -= C[UnitMatrix[i][1]] * b[UnitMatrix[i][0]];
+            baseVarites[i] = UnitMatrix[i][1];
         }
 
         sigma = temp_sigma;
 
     }
 
+    public boolean isBest() {
+        if(indexIN != -1 && indexOut != -1){
+            baseVarites[indexOut] = indexIN;
+        }//更新检验数
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                sigma[i] -= A[j][i] * C[baseVarites[j]];
+            }
+        }
+        boolean isbest = true;
+        for (int i = 0; i <  sigma.length; i++) {
+            if(sigma[i] > 0)
+                isbest = false;
 
+        }
+        return isbest;
+    } //判断是否具有最优解
 
+    public int findIndexIN() {
+        int index = 0;
+        for (int i = 0; i < sigma.length; i++) {
+            if(sigma[i] > sigma[index]){
+                index = i;
+            } //找到sigma最大的换入
+        }
+        return index;
+    }
 
-    public Result calc() {
+    public int findIndexOut(){
+        int index = 0;
+        int count = 0;
+        for (int i = 0; i < m; i++) {
+            theta[i] = b[i] / A[i][indexIN];
+            if(A[i][indexIN]==0) count++;
+        }
+        for (int i = 0; i < theta.length; i++) {
+            if(theta[i] < theta[index])
+                index = i;
+        }
+        if(count==3) return -1;
+        return index;
+    }
 
-        return null;
+    public void updateMatrix(){
+        double temp = A[indexOut][indexIN];
+        for (int i = 0; i < n; i++) {
+            A[indexOut][i] /= temp;
+        }
+        b[indexOut] /= temp; //主元行所在行除以主元
+        for (int i = 0; i < m; i++) {
+            double temp1 = A[i][indexIN]/A[indexOut][indexIN];
+            if(i != indexOut){
+                for (int j = 0; j < n; j++) {
+                    A[i][j] -= A[indexOut][j]*temp1;
+                }
+                b[i] -= b[indexOut] * temp1;
+            }  //非主元行主元行所在列初等行变换为0
+        }
+    } //高斯消元变换矩阵
+
+    public Result getBest(){
+        double z=0;
+        double[] temp= new double[n+1];
+        double[] res= new double[on+1];
+        boolean isINF = false;
+        for(int i=0;i<sigma.length;i++){
+            if(sigma[i]==0){
+                for(int j=0;j<baseVarites.length;j++){
+                    if(baseVarites[j]==i){
+                        isINF = true;
+                        continue;
+                    }
+                }
+                if(!isINF){
+                    return new Result("有无穷多个解！");
+                }
+            }
+        } //是否有非基变量为0
+        for (int i = 0; i < baseVarites.length; i++) {
+            z += C[baseVarites[i]] * b[i];
+            temp[baseVarites[i]] = b[i];
+        }
+        for(int i=0;i<on;i++){
+            res[i] = temp[i];
+        }
+        res[on] = z;
+        return new Result(res);
+    }
+
+    public Result calc(){
+        if(isBigM()) convertToBigM();
+        while (!isBest()) {  //判断最优解
+            indexIN = findIndexIN(); //找换入变量
+            indexOut = findIndexOut(); //找换出变量
+            if(indexOut == -1)
+                return new Result("原问题有无界解"); //若没有换出变量
+            updateMatrix(); //更新矩阵
+        }
+        return getBest();
     }
 
 }
+
+
