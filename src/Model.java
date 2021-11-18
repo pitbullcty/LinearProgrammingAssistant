@@ -76,7 +76,7 @@ public class Model {
                             A[i][j] = cons[i].gettype();
                         }
                     }
-                }
+                }//问题！
             }
         }//初步处理
     }
@@ -91,12 +91,12 @@ public class Model {
             }
         }
         boolean isUnit = true;
-        for (int j = 0; j < A[0].length; j++) {
-            for (int i = 0; i < A.length; i++) {
+        for (int i = 0; i < A.length; i++) {
+            for (int j = 0; j < A[0].length; j++) {
                 if (A[i][j] == 1) {
                     isUnit = true;
                     for (int k = 0; k < A.length; k++) {
-                        if (A[k][j] != A[i][j] && A[k][j] != 0)
+                        if (A[k][j] != 0 && k!=i)
                             isUnit = false;
                     } //判断一列元素是否只含有一个1
                     if (isUnit) {
