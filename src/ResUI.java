@@ -17,13 +17,13 @@ public class ResUI {
     private JLabel time;
 
     public ResUI(Result res){
-        setTime(res);
+        setInfo(res);
         addTosave(res);
         addToContinuity();
         results.append(res.toString());
     }
 
-    public void setTime(Result res) {
+    public void setInfo(Result res) {
         time.setText(String.format("本次运算时间为%.2f ms",res.getTime()));
     }
 

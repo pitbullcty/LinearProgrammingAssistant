@@ -72,12 +72,12 @@ public class MainUI {
                 double start_time = System.nanoTime();
                 Model model = getModel(type, input);
                 Result res = model.calc();
+                double end_time = System.nanoTime();
                 if(model.getisDegeneration()){
                     JOptionPane.showMessageDialog(panel1, "计算过程存在退化，因此可能存在错误！", "警告", JOptionPane.WARNING_MESSAGE);
                 }
-                double end_time = System.nanoTime();
                 if (res != null) {
-                    res.setTime((end_time-start_time)/100000);
+                    res.setTime((end_time-start_time)/1000000);
                     showResults(res);
                 }
             }

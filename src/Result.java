@@ -3,6 +3,7 @@ public class Result {
     private String message;
     private double time;
 
+
     public Result(double[] data){
         result_data  = data.clone();
          message = "有最优解";
@@ -21,6 +22,8 @@ public class Result {
     public void setTime(double time) {
         this.time = time;
     }
+
+
 
     public double getTime() {
         return time;
