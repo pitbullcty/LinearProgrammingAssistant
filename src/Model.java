@@ -30,6 +30,7 @@ public class Model {
     private int addlength = 0; //人工变量个数
 
     private boolean isDegeneration = false;
+    private int type;
 
     public Model(Constraint[] cons, Target tar) {
         convertToModel(cons, tar);
@@ -47,6 +48,7 @@ public class Model {
         } //化为标准形式需要添加的个数
 
         n = tar.getTarget_data().length + addcons;
+        type = tar.getType();
 
         baseVarites = new int[m];
 
@@ -57,7 +59,7 @@ public class Model {
         theta = new double[m];
         sigma = new double[n];
         UnitMatrix = new int[m][2];
-        int offset=0;
+        int offset = 0;
 
         for (int i = 0; i < m; i++) {
             double c = 1;
@@ -72,36 +74,16 @@ public class Model {
                     C[j] = tar.getTarget_data()[j];
                     sigma[j] = C[j];
                     A[i][j] = temp[j] * c;
-                }
-                else{
-                    if(cons[i].gettype()!=0 && j==offset+temp.length-1){
+                } else {
+                    if (cons[i].gettype() != 0 && j == offset + temp.length - 1) {
                         A[i][j] = cons[i].gettype();
                         offset++;
                         break;
                     }
                 }
             }
-        /*    if (i < cons.length) {
-                double[] temp = cons[i].getConstraintdata();
-                b[i] = temp[temp.length - 1];
-                if (b[i] < 0) {
-                    b[i] *= -1;
-                    c = -1;
-                } //将b全部化为正值
-                for (int j = 0; j < n; j++) {
-                    if (j < temp.length - 1) {
-                        C[j] = tar.getTarget_data()[j];
-                        sigma[j] = C[j];
-                        A[i][j] = temp[j] * c;
-                    } else {
-                        if (j == i + temp.length - 1) {
-                            A[i][j] = cons[i].gettype();
-                        }
-                    }
-                }//问题！可以设定offset
-            }*/
-            }//初步处理
         }
+    }
 
 
         //判断是否需要使用大M法，即是否含有单位子矩阵
@@ -295,6 +277,7 @@ public class Model {
             for (int i = 0; i < on; i++) {
                 res[i] = temp[i];
             }
+            z*= type;
             res[on] = z;
             return new Result(res);
         }

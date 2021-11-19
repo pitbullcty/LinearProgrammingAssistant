@@ -39,7 +39,7 @@ public class InputContoller {
         for(int i=0;i<num;i++){
             data[i] = c * Double.parseDouble(target.substring(op_index[i]+1,num_index[i]));
         }
-        return new Target(data);
+        return new Target(data,(int)c);
     } //获取优化目标
 
     public Constraint getConstraint(String constraint)  throws NumberFormatException,IndexOutOfBoundsException{
