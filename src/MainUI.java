@@ -24,7 +24,6 @@ public class MainUI {
     private int num;
 
     public MainUI() {
-
         start();
     }
 
@@ -35,52 +34,51 @@ public class MainUI {
     }  //开始新运算
 
     public void enterTarget(String type, InputContoller input) {
-        String target_index;
-        if (type == "最大值") target_index = "Max z = ";
-        else target_index = "Min z = ";
+        StringBuilder target_index;
+        if (type.equals("最大值"))  target_index = new StringBuilder("Max z = ");
+        else target_index = new StringBuilder("Min z = ");
         for (int i = 0; i < input.getNum(); i++) {
-            target_index += "? " + input.getVariates(i);
-            if (i != input.getNum() - 1) target_index += " + ";
+            target_index.append("? ").append(input.getVariates(i));
+            if (i != input.getNum() - 1) target_index.append(" + ");
         }
-        target.setText(target_index);
+        target.setText(target_index.toString());
     }  //输入优化目标
 
     public void enterConstraint(InputContoller input) {
         ActionListener[] action = addConstraint.getActionListeners();
-        if(action.length!=0){
+        if (action.length != 0) {
             addConstraint.removeActionListener(action[0]);
         }
-        addConstraint.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String cons = "";
-                for (int i = 0; i < input.getNum(); i++) {
-                    cons += "? " + input.getVariates(i);
-                    if (i != input.getNum() - 1) cons += " + ";
-                }
-                cons += "<= ?\n";
-                constraint.append(cons);
-
+        addConstraint.addActionListener(e -> {
+            StringBuilder cons = new StringBuilder();
+            for (int i = 0; i < input.getNum(); i++) {
+                cons.append("? ").append(input.getVariates(i));
+                if (i != input.getNum() - 1) cons.append(" + ");
             }
+            cons.append("<= ?\n");
+            constraint.append(cons.toString());
         });
     }  //输入约束条件
 
     public void calculate(String type, InputContoller input) {
-        calculate.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                double start_time = System.nanoTime();
-                Model model = getModel(type, input);
-                Result res = model.calc();
-                double end_time = System.nanoTime();
-                if(model.getisDegeneration()){
-                    JOptionPane.showMessageDialog(panel1, "计算过程存在退化，因此可能存在错误！", "警告", JOptionPane.WARNING_MESSAGE);
-                }
-                if (res != null) {
-                    res.setTime((end_time-start_time)/1000000);
-                    showResults(res);
-                }
+
+        calculate.addActionListener(e -> {
+
+            double start_time = System.nanoTime();
+            // System.out.println(start_time);
+            Model model = getModel(type, input);
+            Result res = model.calc();
+            double end_time = System.nanoTime();
+            // System.out.println(end_time);
+            if (model.getisDegeneration()) {
+                JOptionPane.showMessageDialog(panel1, "计算过程存在退化，因此可能存在错误！", "警告", JOptionPane.WARNING_MESSAGE);
             }
+            if (res != null) {
+                // System.out.println(end_time-start_time);
+                res.setTime((end_time - start_time) / 1000000);
+                showResults(res);
+            }
+
         });
     }  //开始计算
 
@@ -98,8 +96,7 @@ public class MainUI {
 
     public Target getTarget(String type, InputContoller input) {
         try {
-            Target target = input.getTarget(type, this.target.getText());
-            return target;
+            return input.getTarget(type, this.target.getText());
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(panel1, "优化目标有误！", "警告", JOptionPane.WARNING_MESSAGE);
@@ -110,9 +107,9 @@ public class MainUI {
     public Constraint[] getConstraint(InputContoller input) {
         try {
             ArrayList<Constraint> constraints = new ArrayList<>();
-            String temp[] = constraint.getText().split("\n");
-            for(int i=0;i<temp.length;i++){
-                constraints.add(input.getConstraint(temp[i]));
+            String[] temp = constraint.getText().split("\n");
+            for (var i : temp) {
+                constraints.add(input.getConstraint(i));
             }
             return constraints.toArray(Constraint[]::new);
         } catch (Exception e) {
@@ -140,20 +137,19 @@ public class MainUI {
 
     public void start() {
 
-        confirm.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int prenum = num;
-                String temp = variates_num.getText().replace(" ", "");
-                if (temp != "") num = Integer.parseInt(temp);
-                else num = 0;
-                String tp = (String) type.getSelectedItem();
-                if (num >= 2 && prenum!=num) {
-                    constraint.setText("");
-                    startNewCalculation(tp, new InputContoller(num));
-                }
-                if (num < 2) JOptionPane.showMessageDialog(panel1, "变量过少", "警告", JOptionPane.WARNING_MESSAGE);
+        confirm.addActionListener(e -> {
+
+            int prenum = num;
+            String temp = variates_num.getText().replace(" ", "");
+            if (!temp.equals("")) num = Integer.parseInt(temp);
+            else num = 0;
+            String tp = (String) type.getSelectedItem();
+            if (num >= 2 && prenum != num) {
+                constraint.setText("");
+                startNewCalculation(tp, new InputContoller(num));
             }
+            if (num < 2) JOptionPane.showMessageDialog(panel1, "变量过少", "警告", JOptionPane.WARNING_MESSAGE);
+
         });
     }
 

@@ -1,6 +1,4 @@
-import javax.swing.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 public class Model {
@@ -10,46 +8,42 @@ public class Model {
     private int m;  //方程个数
     private int n;  //变量个数
     private int on; //初始变量个数
-    private int an; //添加人工变量个数
-
 
     private double[][] A; //系数矩阵
     private double[] C;//价值矩阵
     private double[] b; //资源常数
 
-
     private double[] sigma;  //检验数
     private double[] theta;  //行检验数
 
     private int[][] UnitMatrix; //记录单位子块位置
-    private int[] baseVarites;
-    private double z;
+    private int[] baseVarites; //基变量
 
-    private int indexIN = -1;
-    private int indexOut = -1;
+    private int indexIN = -1; //换入变量
+    private int indexOut = -1; //换出变量
     private int addlength = 0; //人工变量个数
 
-    private boolean isDegeneration = false;
-    private int type;
+    private boolean isDegeneration = false; //问题是否退化
+    private int type; //问题类型
+
 
     public Model(Constraint[] cons, Target tar) {
         convertToModel(cons, tar);
     }
 
     public void convertToModel(Constraint[] cons, Target tar) {
+
         m = cons.length;
         on = tar.getTarget_data().length;
 
         int addcons = 0;
-        for (int i = 0; i < cons.length; i++) {
-            if (cons[i].gettype() != 0) {
-                addcons++;
-            }
-        } //化为标准形式需要添加的个数
+
+        for(var i:cons){
+            if(i.gettype()!=0) addcons++;
+        }//化为标准形式需要添加的个数
 
         n = tar.getTarget_data().length + addcons;
         type = tar.getType();
-
         baseVarites = new int[m];
 
         A = new double[m][n];
@@ -85,7 +79,6 @@ public class Model {
         }
     }
 
-
         //判断是否需要使用大M法，即是否含有单位子矩阵
         public boolean isBigM () {
             for (int i = 0; i < UnitMatrix.length; i++) {
@@ -94,14 +87,16 @@ public class Model {
                     UnitMatrix[i][j] = -1;
                 }
             }
-            boolean isUnit = true;
+            boolean isUnit;
             for (int i = 0; i < A.length; i++) {
                 for (int j = 0; j < A[0].length; j++) {
                     if (A[i][j] == 1) {
                         isUnit = true;
                         for (int k = 0; k < A.length; k++) {
-                            if (A[k][j] != 0 && k != i)
+                            if (A[k][j] != 0 && k != i) {
                                 isUnit = false;
+                                break;
+                            }
                         } //判断一列元素是否只含有一个1
                         if (isUnit) {
                             UnitMatrix[i][0] = i;
@@ -124,6 +119,7 @@ public class Model {
             for (int i = 0; i < m; i++) {
                 if (UnitMatrix[i][0] == -1) addlength++;
             }//计算要增加的变量个数,使得矩阵中存在单位阵
+
             double[] temp_sigma = new double[n + addlength];
             if (addlength > 0) {
                 double[][] tempA = new double[m][n + addlength];
@@ -158,7 +154,6 @@ public class Model {
             for (int i = 0; i < UnitMatrix.length; i++) {
                 baseVarites[i] = UnitMatrix[i][1];
             }
-
             sigma = temp_sigma;
 
         }
@@ -174,9 +169,11 @@ public class Model {
                 }
             }
             boolean isbest = true;
-            for (int i = 0; i < sigma.length; i++) {
-                if (sigma[i] > 0)
-                    isbest = false;
+            for(var i:sigma){
+                if(i>0){
+                    isbest=false;
+                    break;
+                }
             }
             return isbest;
         } //判断是否具有最优解
@@ -192,21 +189,22 @@ public class Model {
         }
 
         public int findIndexOut () {
+
             ArrayList<Double> temp = new ArrayList<>();
             ArrayList<Integer> same_index = new ArrayList<>();
-            int index = 0;
             int count = 0;
             int same_count = 0;
+            double min;
+            int index;
 
-            double min = 0;
             for (int i = 0; i < m; i++) {
                 theta[i] = b[i] / A[i][indexIN];
-                if (A[i][indexIN] == 0) count++;
             }
-            for (int i = 0; i < theta.length; i++) {
-                if (theta[i] >= 0) temp.add(theta[i]);
+
+            for(var i:theta){
+                if(i>=0) temp.add(i);
             }
-            if (count == 3) return -1;
+
             min = Collections.min(temp);
 
             for (int i = 0; i < theta.length; i++) {
@@ -251,18 +249,15 @@ public class Model {
             double[] temp = new double[sigma.length + 1];
             double[] res = new double[on + 1];
             boolean isINF = false;
-            for (int i = 0; i < baseVarites.length; i++) {
-                if (baseVarites[i] >= n) {
-                    return new Result("大M无法消去，无解！");
-                }
+            for(var i:baseVarites){
+                if(i>=n)  return new Result("大M无法消去，无解！");
             }
-
             for (int i = 0; i < sigma.length; i++) {
                 if (sigma[i] == 0) {
-                    for (int j = 0; j < baseVarites.length; j++) {
-                        if (baseVarites[j] == i) {
-                            isINF = true;
-                            continue;
+                    for(var j:baseVarites){
+                        if(j==i) {
+                            isINF=true;
+                            break;
                         }
                     }
                     if (!isINF) {
@@ -274,9 +269,11 @@ public class Model {
                 z += C[baseVarites[i]] * b[i];
                 temp[baseVarites[i]] = b[i];
             }
+
             for (int i = 0; i < on; i++) {
                 res[i] = temp[i];
             }
+
             z*= type;
             res[on] = z;
             return new Result(res);
