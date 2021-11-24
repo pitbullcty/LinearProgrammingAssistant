@@ -43,6 +43,7 @@
         </constraints>
         <properties>
           <model>
+            <item value=""/>
             <item value="最大值"/>
             <item value="最小值"/>
           </model>
